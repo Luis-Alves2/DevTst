@@ -1,9 +1,0 @@
-[submodule "acess-gateway"]
-	path = acess-gateway
-	url = ./acess-gateway
-[submodule "micr-clients"]
-	path = micr-clients
-	url = ./micr-clients
-[submodule "micr-transactions"]
-	path = micr-transactions
-	url = ./micr-transactions
