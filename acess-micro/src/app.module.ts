@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from  './controllers/app.controller';
+import { AppService } from './services/app.service';
 
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
@@ -9,18 +9,18 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ClientsModule.register([
       {
         name: 'MICRO-CLIENT',
-        transport: Transport.MQTT,
+        transport: Transport.RMQ,
         options: {
-          host: 'localhost',
-          port: 3001,
+          urls: ['amqp://localhost:3001'],
+          queue: 'nestjs_queue_client',
         },
       },
       {
         name: 'MICRO-TRANSACTION',
-        transport: Transport.MQTT,
+        transport: Transport.RMQ,
         options: {
-          host: 'localhost',
-          port: 3002,
+          urls: ['amqp://localhost:3001'],
+          queue: 'nestjs_queue_transaction',
         },
       },
     ]),

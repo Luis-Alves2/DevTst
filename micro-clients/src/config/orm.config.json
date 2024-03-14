@@ -1,0 +1,11 @@
+{
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "gateway_connect",
+    "password": "0123456789",
+    "database": "database_client_test",
+    "entities": ["dist/**/*.entity.js"],
+    "synchronize": true
+  }
+  
