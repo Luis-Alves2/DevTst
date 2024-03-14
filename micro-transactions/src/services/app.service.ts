@@ -33,4 +33,8 @@ export class TransactionService {
 
     await this.transactionRepository.save(transaction);
   }
+
+  getHello(): string {
+    return 'Hello from Service Client';
+  }
 }

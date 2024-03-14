@@ -7,6 +7,11 @@ import { Transaction } from '../entities/app.entity';
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
+  @Get()
+  getHello(): string {
+    return this.transactionService.getHello();
+  }
+
   @Post('/api/transactions')
   async createTransfer(
     @Body() transactionData: { senderUserId: number; receiverUserId: number; amount: number; description: string },
@@ -52,7 +57,7 @@ export class TransactionController {
       const userTransactions = await this.transactionService.getTransactionsByUserId(userId);
       return userTransactions;
     } catch (error) {
-      
+
       throw new HttpException('Failed to fetch user transactions.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
