@@ -11,9 +11,10 @@ export class Client {
   @Column()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   agency: string;
 
-  @Column()
+  @Column({ nullable: true })
   accountNumber: string;
+  profilePicture: any;
 }
