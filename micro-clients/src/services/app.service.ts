@@ -4,27 +4,29 @@ import { Repository } from "typeorm";
 
 import { Client } from '../entities/app.entity';
 
-const newClientData = {
-  name: 'John Doe',
-  email: 'john@example.com',
-  address: '123 Main St, City',
-  bankingDetails: {
-    agency: '1234',
-    accountNumber: '56789'
-  }
-};
+import {  Transport,ClientProxy, ClientProxyFactory, MessagePattern  } from '@nestjs/microservices';
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class ClientService {
+  private clientProxy: ClientProxy;
   constructor(
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>
-  ) {}
+  ) {
+    this.clientProxy = ClientProxyFactory.create({
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://localhost:5672'],
+        queue: 'client_to_api_queue',
+      },
+    });
+  }
 
   async createClient(clientData: Partial<Client>): Promise<{ message: string; client: Client }> {
     const newClient = await this.clientRepository.create(clientData);
     await this.clientRepository.save(newClient);
-    return { message: 'Client created successfully!', client: newClient };
+    return { message: 'Client created successfully', client: newClient };
   }
 
   async findAll(): Promise<Client[]> {
@@ -65,4 +67,38 @@ export class ClientService {
     client.profilePicture = profilePictureBuffer;
     await this.clientRepository.save(client);
   }
+
+
+
+
+  @MessagePattern('api_to_client_queue')
+  async handleApiToClientMessage(data: any): Promise<void> {
+    try {
+      const { action, payload } = data;
+  
+      let result;
+      switch (action) {
+        case 'getAllClients': // Matching with @Get('/api/clients')
+          result = await this.findAll();
+          break;
+        case 'createClient': // Matching with @Post('/api/clients')
+          result = await this.createClient(payload);
+          break;
+        case 'updateUser': // Matching with @Patch('/api/clients/:userId')
+          result = await this.updateUser(payload.id, payload.data);
+          break;
+        case 'updateProfilePicture': // Matching with @Patch('/api/clients/:userId/profile-picture')
+          const { userId, profilePicture } = payload;
+          result = await this.updateProfilePicture(userId, profilePicture);
+          break;
+        default:
+          throw new Error('Invalid action');
+      }
+  
+      await firstValueFrom(this.clientProxy.emit('client_response', { action, result }));
+    } catch (error) {
+      console.error('Error handling API to client message:', error);
+    }
+  }
+  
 }

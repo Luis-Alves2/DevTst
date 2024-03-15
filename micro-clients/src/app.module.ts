@@ -3,10 +3,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientController } from './controllers/app.controller';
 import { ClientService } from './services/app.service';
 
+import { ClientsModule, Transport } from '@nestjs/microservices';
+
 import { Client } from './entities/app.entity';
 
 @Module({
  imports: [
+  ClientsModule.register([
+    {
+      name: 'API_GATEWAY',
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://localhost:5672'],
+        queue: 'api_to_client_queue',
+      },
+    }]),
   TypeOrmModule.forRoot({
     "type": "postgres",
     "host": "localhost",
