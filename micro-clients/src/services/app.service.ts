@@ -24,24 +24,35 @@ export class ClientService {
   }
 
   async createClient(clientData: Partial<Client>): Promise<{ message: string; client: Client }> {
+    console.log('Creating client:', clientData);
     const newClient = await this.clientRepository.create(clientData);
     await this.clientRepository.save(newClient);
     return { message: 'Client created successfully', client: newClient };
   }
 
   async findAll(): Promise<Client[]> {
+    console.log('Finding all clients');
     return await this.clientRepository.find();
   }
 
   async findOne(id: number): Promise<Client | undefined> {
+    console.log('Finding client with ID:', id);
     return await this.clientRepository.findOne({ where: { id } });
   }
   
   getHello(): string {
+    console.log('Returning greeting from Service Client');
+    // Define the action and payload
+  const action = 'getAllClients'; // or any other action you want to perform
+  const payload = {}; // You can pass any payload object here
+
+  // Call handleApiToClientMessage with the action and payload
+  this.handleApiToClientMessage({ action, payload });
     return 'Hello from Service Client';
   }
 
   async updateUser(userId: number, updateData: Partial<Client>): Promise<string> {
+    console.log('Updating user with ID:', userId, 'Update data:', updateData);
     try {
       const existingUser = await this.clientRepository.findOne({ where: { id: userId } });
       if (!existingUser) {
@@ -73,6 +84,8 @@ export class ClientService {
 
   @MessagePattern('api_to_client_queue')
   async handleApiToClientMessage(data: any): Promise<void> {
+    console.log('lets begin trying to handle essages')
+    console.log(data)
     try {
       const { action, payload } = data;
   
@@ -94,9 +107,11 @@ export class ClientService {
         default:
           throw new Error('Invalid action');
       }
-  
+      
+      return result;
       await firstValueFrom(this.clientProxy.emit('client_response', { action, result }));
     } catch (error) {
+      console.log('why did we get here we not supposed to get here')
       console.error('Error handling API to client message:', error);
     }
   }

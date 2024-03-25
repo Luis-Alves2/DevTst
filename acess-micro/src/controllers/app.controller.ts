@@ -1,5 +1,6 @@
-import { Controller,Get, Post, Body, Inject, Patch, Param  } from '@nestjs/common';
+//import { Controller, Inject,} from '@nestjs/common';
 import { AppService } from '../services/app.service' ;
+import { Controller, Inject, Get, Post, Patch, Body, Param } from '@nestjs/common';
 
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -27,24 +28,29 @@ async getHello(): Promise<string> {
 @Get('/api/clients')
 @ApiOperation({ summary: 'Returns Every Client' })
 async getAllClients(): Promise<any> {
+  console.log('Calling getAllClients endpoint');
   return await firstValueFrom(this.clientService.send('getAllUsers', ''));
 }
 
 @Post('/api/clients')
 @ApiOperation({ summary: 'Creates a Client in the database' })
 async createClient(@Body() clientData: any): Promise<any> {
+  console.log('Creating a new client:', clientData);
   return await firstValueFrom(this.clientService.send('createClient', clientData));
+  console.log('value returned')
 }
 
 @Patch('/api/clients/:userId')
 @ApiOperation({ summary: 'Updates a users profile info' })
 async updateUser(@Param('userId') userId: number, @Body() updateData: any): Promise<any> {
+  console.log('Updating user profile with ID:', userId);
   return await firstValueFrom(this.clientService.send('updateUser', { id: userId, data: updateData }));
 }
 
 @Patch('/api/clients/:userId/profile-picture')
 @ApiOperation({ summary: 'Updates a users picture profile' })
 async updateProfilePicture(@Param('userId') userId: number, @Body('profilePicture') profilePictureBase64: string): Promise<any> {
+  console.log('Updating profile picture for user with ID:', userId);
   const profilePictureBuffer = Buffer.from(profilePictureBase64, 'base64');
   return await firstValueFrom(this.clientService.send('updateProfilePicture', { id: userId, data: profilePictureBuffer }));
 }
